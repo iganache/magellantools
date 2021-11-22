@@ -16,8 +16,6 @@ def makeTracks(inpath,outfile):
     
     col_list = ["fpath", "orbit"]
     crs = "+proj=longlat +a=6051800 +b=6051800 +no_defs"
-    #gdf = makegeoDF(col_list, crs = crs)
-    
     geom_list = []
     
     files = glob.glob(inpath + '/**/*.lbl', recursive=True)
@@ -53,17 +51,6 @@ def makeTracks(inpath,outfile):
     df = pd.concat(recs)
     gdf = gpd.GeoDataFrame(df, columns=col_list, geometry=df.geometry)
     gdf.crs = crs
-    gdf.to_file(outfile, driver="GPKG")    
+    gdf.to_file(outfile, driver="GPKG", layer="arcrdr")    
         
-
-def makegeoDF(col_list, crs = None):
-    gdf = gpd.GeoDataFrame(
-        geometry=[],
-        columns=col_list
-    )
-    
-    gdf.crs = crs
-    
-    return gdf
-
 main()
