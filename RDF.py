@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import os
 
 
 def readRDF(lbl):
@@ -22,7 +23,7 @@ def getFileHdr(lbl):
                 file = line.split('=')[1].split(',')[0]
                 file = file.strip(" (\"")
                 break
-    return file.lower(), hdr
+    return os.path.dirname(lbl) + '/' + file.lower(), hdr
 
 
 def parseRDF(file, hdr):
