@@ -5,9 +5,16 @@ import os
 
 def readRDF(lbl):
     file, hdr = getFileHdr(lbl)
+    print(file)
     if(hdr == -1):
         sys.exit("No ^TABLE pointer found in label file %s" % lbl)
-    return parseRDF(file, hdr)
+        
+    lblname = lbl.split('.')[0].split('/')[-1]
+    if list(lblname)[0:3] == ['r', 'd', 'f']:
+        return parseRDF(file, hdr)
+    if list(lblname)[0:3] == ['a', 'd', 'f']:
+        print("adf")
+        return parseADF(file, hdr)
 
 
 def getFileHdr(lbl):
@@ -23,8 +30,103 @@ def getFileHdr(lbl):
                 file = line.split('=')[1].split(',')[0]
                 file = file.strip(" (\"")
                 break
+
     return os.path.dirname(lbl) + '/' + file.lower(), hdr
 
+
+def parseADF(file, hdr):
+    print("hdr bytes = ", hdr)
+    fd = open(file, 'rb')
+    adfhd = fd.read(hdr-1)
+    adfhd = adfhd.split(b"\r\n")
+    header = {}
+    for item in adfhd:
+        if(len(item) > 0):
+            item = item.split(b'=')
+            header[item[0].decode()] = item[1].decode()
+
+    recOrig_t = np.dtype(
+        [
+            ("SFDU_LABEL_AND_LENGTH", "<S20"),
+            ("FOOTPRINT_NUMBER", "<i4"),
+            ("ALT_FLAG_GROUP", "<u4"),
+            ("ALT_FLAG2_GROUP", "<u4"),
+            ("ALTIMETRY_FOOTPRINT_TDB_TIME", "<f8"),
+            ("ALT_SPACECRAFT_POSITION_VECTOR", "<f8", 3),
+            ("ALT_SPACECRAFT_VELOCITY_VECTOR",  "<f8", 3),
+            ("ALT_FOOTPRINT_LONGITUDE", "<f4"),
+            ("ALT_FOOTPRINT_LATITUDE", "<f4"),
+            ("ALT_ALONG_TRACK_FOOTPRINT_SIZE", "<f4"),
+            ("ALT_CROSS_TRACK_FOOTPRINT_SIZE", "<f4"),
+            ("RECEIVER_NOISE_CALIBRATION", "<f4"),
+            ("UNCORRECTED_DISTANCE_TO_NADIR", "<f4"),
+            ("ATMOS_CORRECTION_TO_DISTANCE", "<f4"),
+            ("DERIVED_PLANETARY_RADIUS", "<f4"),
+            ("RADAR_DERIVED_SURF_ROUGHNESS", "<f4"),
+            ("DERIVED_FRESNEL_REFLECTIVITY", "<f4"),
+            ("DERIVED_FRESNEL_REFLECT_CORR", "<f4"),
+            ("FORMAL_ERRORS_GROUP", "<f4", 3),
+            ("FORMAL_CORRELATIONS_GROUP", "<f4", 6),
+            ("EPHEMERIS_RADIUS_CORRECTION", "<f4"),
+            ("EPHEMERIS_LONGITUDE_CORRECTION", "<f4"),
+            ("EPHEMERIS_LATITUDE_CORRECTION", "<f4"),
+            ("ALT_PARTIALS_GROUP", "<f4", 18),
+            ("NON_RANGE_SHARP_FIT", "<f4"),
+            ("SCALING_FACTOR", "<f4"),
+            ("NON_RANGE_SHARP_LOOKS", "<u4"),
+            ("NON_RANGE_PROF_CORRS_INDEX", "<u4"),
+            ("NON_RANGE_SHARP_ECHO_PROF", ">u1", 302),                       # # UNSIGNED_INTEGER
+            ("BEST_NON_RANGE_SHARP_MODEL_TPT", ">u1", 50),                   # # UNSIGNED_INTEGER
+            ("RANGE_SHARP_FIT", "<f4"),
+            ("RANGE_SHARP_SCALING_FACTOR", "<f4"),
+            ("RANGE_SHARP_LOOKS", "<u4"),
+            ("RANGE_SHARP_PROF_CORRS_INDEX", "<u4"),
+            ("RANGE_SHARP_ECHO_PROFILE", ">u1", 302),                        # # UNSIGNED_INTEGER
+            ("BEST_RANGE_SHARP_MODEL_TMPLT", ">u1", 50),                     # # UNSIGNED_INTEGER
+            ("MULT_PEAK_FRESNEL_REFLECT_CORR", "<f4"),
+            ("DERIVED_PLANETARY_THRESH_RADI", "<f4"),
+            ("SIGNAL_QUALITY_INDICATOR", "<f4"),                             # # IEEE real
+            ("DERIVED_THRESH_DETECTOR_INDEX", "<u4"),
+            ("SPARE", "V28"),
+        ]
+    )
+    adf = np.fromfile(fd, dtype=recOrig_t)
+    fd.close()
+    
+    # Convert vax format numbers to float
+    adf["ALTIMETRY_FOOTPRINT_TDB_TIME"] = vax2ieee(adf["ALTIMETRY_FOOTPRINT_TDB_TIME"])
+    adf["ALT_SPACECRAFT_POSITION_VECTOR"] = vax2ieee(adf["ALT_SPACECRAFT_POSITION_VECTOR"])
+    adf["ALT_SPACECRAFT_VELOCITY_VECTOR"] = vax2ieee(adf["ALT_SPACECRAFT_VELOCITY_VECTOR"])
+    adf["ALT_FOOTPRINT_LONGITUDE"] = vax2ieee(adf["ALT_FOOTPRINT_LONGITUDE"])
+    adf["ALT_FOOTPRINT_LATITUDE"] = vax2ieee(adf["ALT_FOOTPRINT_LATITUDE"])
+    adf["ALT_ALONG_TRACK_FOOTPRINT_SIZE"] = vax2ieee(adf["ALT_ALONG_TRACK_FOOTPRINT_SIZE"])
+    adf["ALT_CROSS_TRACK_FOOTPRINT_SIZE"] = vax2ieee(adf["ALT_CROSS_TRACK_FOOTPRINT_SIZE"])
+    adf["RECEIVER_NOISE_CALIBRATION"] = vax2ieee(adf["RECEIVER_NOISE_CALIBRATION"]) 
+    adf["UNCORRECTED_DISTANCE_TO_NADIR"] = vax2ieee(adf["UNCORRECTED_DISTANCE_TO_NADIR"])
+    adf["ATMOS_CORRECTION_TO_DISTANCE"] = vax2ieee(adf["ATMOS_CORRECTION_TO_DISTANCE"])
+    adf["DERIVED_PLANETARY_RADIUS"] = vax2ieee(adf["DERIVED_PLANETARY_RADIUS"])
+    adf["RADAR_DERIVED_SURF_ROUGHNESS"] = vax2ieee(adf["RADAR_DERIVED_SURF_ROUGHNESS"])
+    adf["DERIVED_FRESNEL_REFLECTIVITY"] = vax2ieee(adf["DERIVED_FRESNEL_REFLECTIVITY"])
+    adf["DERIVED_FRESNEL_REFLECT_CORR"] = vax2ieee(adf["DERIVED_FRESNEL_REFLECT_CORR"])
+    adf["FORMAL_ERRORS_GROUP"] = vax2ieee(adf["FORMAL_ERRORS_GROUP"])
+    adf["FORMAL_CORRELATIONS_GROUP"] = vax2ieee(adf["FORMAL_CORRELATIONS_GROUP"]) 
+    adf["EPHEMERIS_RADIUS_CORRECTION"] = vax2ieee(adf["EPHEMERIS_RADIUS_CORRECTION"])
+    adf["EPHEMERIS_LONGITUDE_CORRECTION"] = vax2ieee(adf["EPHEMERIS_LONGITUDE_CORRECTION"])
+    adf["EPHEMERIS_LATITUDE_CORRECTION"] = vax2ieee(adf["EPHEMERIS_LATITUDE_CORRECTION"])
+    adf["ALT_PARTIALS_GROUP"] = vax2ieee(adf["ALT_PARTIALS_GROUP"])
+    adf["NON_RANGE_SHARP_FIT"] = vax2ieee(adf["NON_RANGE_SHARP_FIT"])
+    adf["SCALING_FACTOR"] = vax2ieee(adf["SCALING_FACTOR"])
+    adf["RANGE_SHARP_FIT"] = vax2ieee(adf["RANGE_SHARP_FIT"])
+    adf["RANGE_SHARP_SCALING_FACTOR"] = vax2ieee(adf["RANGE_SHARP_SCALING_FACTOR"]) 
+    adf["MULT_PEAK_FRESNEL_REFLECT_CORR"] = vax2ieee(adf["MULT_PEAK_FRESNEL_REFLECT_CORR"])
+    adf["DERIVED_PLANETARY_THRESH_RADI"] = vax2ieee(adf["DERIVED_PLANETARY_THRESH_RADI"])
+    
+
+
+    return header, adf
+            
+    
+    
 
 def parseRDF(file, hdr):
     fd = open(file, 'rb')
