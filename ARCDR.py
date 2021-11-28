@@ -3,7 +3,7 @@ import sys
 import os
 
 
-def readRDF(lbl):
+def readARCDR(lbl):
     file, hdr = getFileHdr(lbl)
     print(file)
     if(hdr == -1):
@@ -13,7 +13,6 @@ def readRDF(lbl):
     if list(lblname)[0:3] == ['r', 'd', 'f']:
         return parseRDF(file, hdr)
     if list(lblname)[0:3] == ['a', 'd', 'f']:
-        print("adf")
         return parseADF(file, hdr)
 
 
