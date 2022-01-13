@@ -1,0 +1,35 @@
+CCSD3ZF0000100000001NJPL3IF0PDS200000001 = SFDU_LABEL                         
+/*         FILE FORMAT AND LENGTH */                                          
+RECORD_TYPE                    = FIXED_LENGTH                                 
+RECORD_BYTES                   = 32500                                        
+FILE_RECORDS                   = 22                                           
+^HEADER                        = ("RDF00581.4",1)                             
+^TABLE                         = ("RDF00581.4",475<BYTES>)                    
+/*         DATA DESCRIPTION */                                                
+DATA_SET_ID                    = 'MGN-V-RDRS-5-CDR-ALT/RAD-V1.0'              
+TARGET_NAME                    = VENUS                                        
+SPACECRAFT_NAME                = MAGELLAN                                     
+MISSION_PHASE_NAME             = PRIMARY_MISSION                              
+PRODUCT_CREATION_TIME          = 1992-10-15T19:35:47.000Z                     
+ORBIT_NUMBER                   = 581                                          
+HARDWARE_VERSION_ID            = 01                                           
+SOFTWARE_VERSION_ID            = 02                                           
+UPLOAD_ID                      = P0286A                                       
+NAVIGATION_SOLUTION_ID         = "ID = M0285-12                   "           
+DESCRIPTION                    = "                                            
+         This file contains binary records describing, in time order,         
+         each radiometer footprint measured during an orbit of the            
+         Magellan radar mapper."                                              
+/*          DESCRIPTION OF THE OBJECTS CONTAINED IN FILES */                  
+OBJECT                         = HEADER                                       
+ TYPE                          = SFDU                                         
+ BYTES                         = 474                                          
+END_OBJECT                                                                    
+OBJECT                         = TABLE                                        
+ INTERCHANGE_FORMAT            = BINARY                                       
+ ROWS                          = 2606                                         
+ COLUMNS                       = 29                                           
+ ROW_BYTES                     = 264                                          
+ ^STRUCTURE                    = "RDFTBL.FMT"                                 
+END_OBJECT                                                                    
+END                                                                           
