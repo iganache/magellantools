@@ -6,11 +6,13 @@ import os
 def readARCDR(lbl):
     file, hdr = getFileHdr(lbl)
     print(file)
+
     if(hdr == -1):
         sys.exit("No ^TABLE pointer found in label file %s" % lbl)
         
     lblname = lbl.split('.')[0].split('/')[-1]
     if list(lblname)[0:3] == ['r', 'd', 'f']:
+        print("parsing rdf")
         return parseRDF(file, hdr)
     if list(lblname)[0:3] == ['a', 'd', 'f']:
         return parseADF(file, hdr)
