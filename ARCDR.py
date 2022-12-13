@@ -10,12 +10,17 @@ def readARCDR(lbl):
     if(hdr == -1):
         sys.exit("No ^TABLE pointer found in label file %s" % lbl)
         
-    lblname = lbl.split('.')[0].split('/')[-1]
-    if list(lblname)[0:3] == ['r', 'd', 'f']:
+    lblname = os.path.basename(file)
+    
+    if lblname[0:3].lower() == "rdf":
         print("parsing rdf")
         return parseRDF(file, hdr)
-    if list(lblname)[0:3] == ['a', 'd', 'f']:
+    if lblname[0:3].lower() == "adf":
+        print("parsing adf")
         return parseADF(file, hdr)
+    else:
+        sys.exit("No parser match found")
+        
 
 
 def getFileHdr(lbl):
