@@ -1,8 +1,3 @@
-.. magellantools documentation master file, created by
-   sphinx-quickstart on Fri May 12 08:01:46 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Magellan PDS Tools
 =========================================
 `magellantools <https://github.com/iganache/magellantools>`__ is an open-source Python package to read, manipulate, and export PDS data from the Magellan mission to Venus (in more convenient formats).
@@ -44,7 +39,8 @@ Add citation here
    :hidden:
    :caption: Python Examples
 
-   notebook/ex_parserdr
+   notebook/ex_parserdf
+   notebook/ex_parseadf
 
 .. toctree::
    :maxdepth: 1
