@@ -32,9 +32,30 @@ If you use magellantools in your own research, please consider citing the reposi
 
 Add citation here
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Overview
+
+   self
+
 .. toctree:: 
    :maxdepth: 1
    :hidden:
-   :caption: Examples
+   :caption: Python Examples
+
+   notebook/ex_parserdr
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Command Line Examples
 
    ex_rdr2csv
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Development
+
+   autoapi/index

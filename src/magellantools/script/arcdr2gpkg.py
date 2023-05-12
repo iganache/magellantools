@@ -52,16 +52,32 @@ def arcdr2gpkg(file, ftype):
 
     # Split up some multi element fields, name the rest (to toss)
     if ftype == "adf":
-        df["ALT_SPACECRAFT_POSITION_VECTOR_X"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][:, 0]
-        df["ALT_SPACECRAFT_POSITION_VECTOR_Y"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][:, 1]
-        df["ALT_SPACECRAFT_POSITION_VECTOR_Z"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][:, 2]
+        df["ALT_SPACECRAFT_POSITION_VECTOR_X"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][
+            :, 0
+        ]
+        df["ALT_SPACECRAFT_POSITION_VECTOR_Y"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][
+            :, 1
+        ]
+        df["ALT_SPACECRAFT_POSITION_VECTOR_Z"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][
+            :, 2
+        ]
 
-        df["ALT_SPACECRAFT_VELOCITY_VECTOR_X"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][:, 0]
-        df["ALT_SPACECRAFT_VELOCITY_VECTOR_Y"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][:, 1]
-        df["ALT_SPACECRAFT_VELOCITY_VECTOR_Z"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][:, 2]
+        df["ALT_SPACECRAFT_VELOCITY_VECTOR_X"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 0
+        ]
+        df["ALT_SPACECRAFT_VELOCITY_VECTOR_Y"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 1
+        ]
+        df["ALT_SPACECRAFT_VELOCITY_VECTOR_Z"] = data["ALT_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 2
+        ]
 
-        df["NON_RANGE_SHARP_ECHO_PROF_MEAN"] = np.mean(data["NON_RANGE_SHARP_ECHO_PROF"])
-        df["NON_RANGE_SHARP_ECHO_PROF_STDEV"] = np.std(data["NON_RANGE_SHARP_ECHO_PROF"])
+        df["NON_RANGE_SHARP_ECHO_PROF_MEAN"] = np.mean(
+            data["NON_RANGE_SHARP_ECHO_PROF"]
+        )
+        df["NON_RANGE_SHARP_ECHO_PROF_STDEV"] = np.std(
+            data["NON_RANGE_SHARP_ECHO_PROF"]
+        )
 
         delFields = [
             "ALT_SPACECRAFT_POSITION_VECTOR",
@@ -79,13 +95,25 @@ def arcdr2gpkg(file, ftype):
         lat = data["ALT_FOOTPRINT_LATITUDE"]
 
     elif ftype == "rdf":
-        df["RAD_SPACECRAFT_POSITION_VECTOR_X"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][:, 0]
-        df["RAD_SPACECRAFT_POSITION_VECTOR_Y"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][:, 1]
-        df["RAD_SPACECRAFT_POSITION_VECTOR_Z"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][:, 2]
+        df["RAD_SPACECRAFT_POSITION_VECTOR_X"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][
+            :, 0
+        ]
+        df["RAD_SPACECRAFT_POSITION_VECTOR_Y"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][
+            :, 1
+        ]
+        df["RAD_SPACECRAFT_POSITION_VECTOR_Z"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][
+            :, 2
+        ]
 
-        df["RAD_SPACECRAFT_VELOCITY_VECTOR_X"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][:, 0]
-        df["RAD_SPACECRAFT_VELOCITY_VECTOR_Y"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][:, 1]
-        df["RAD_SPACECRAFT_VELOCITY_VECTOR_Z"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][:, 2]
+        df["RAD_SPACECRAFT_VELOCITY_VECTOR_X"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 0
+        ]
+        df["RAD_SPACECRAFT_VELOCITY_VECTOR_Y"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 1
+        ]
+        df["RAD_SPACECRAFT_VELOCITY_VECTOR_Z"] = data["RAD_SPACECRAFT_VELOCITY_VECTOR"][
+            :, 2
+        ]
 
         df["SAR_AVERAGE_BACKSCATTER_WEST"] = data["SAR_AVERAGE_BACKSCATTER"][:, 0]
         df["SAR_AVERAGE_BACKSCATTER_EAST"] = data["SAR_AVERAGE_BACKSCATTER"][:, 1]
@@ -109,11 +137,11 @@ def arcdr2gpkg(file, ftype):
 
     # Copy over everything else to dataframe
     for field in data.dtype.names:
-        if(field not in delFields):
+        if field not in delFields:
             df[field] = data[field]
 
     # Filter out bad data (nasty lons)
-    mask = (lon <= 360)
+    mask = lon <= 360
     df = df[mask]
     lon = lon[mask]
     lat = lat[mask]
@@ -149,7 +177,7 @@ def main():
         'GEOGCS["GCS_Venus_2000",DATUM["D_Venus_2000",SPHEROID["Venus_2000_IAU_IAG",6051800,0,AUTHORITY["ESRI","107902"]],AUTHORITY["ESRI","106902"]],PRIMEM["Reference_Meridian",0,AUTHORITY["ESRI","108900"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["ESRI","104902"]]'
     )
 
-    # Writing geopackage 
+    # Writing geopackage
     print("Writing geopackage")
     gdf.to_file("arcdr.gpkg", layer=args.type, driver="GPKG", mode="w")
 
