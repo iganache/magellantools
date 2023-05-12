@@ -25,7 +25,7 @@ dependencies = [
 
 [project.urls]
 repository = "https://github.com/iganache/magellantools"
-
+documentation = "https://magellantools.readthedocs.io/en/latest/"
 [project.scripts]
 arcdr2csv = "magellantools.script.arcdr2csv:main"
 arcdr2gpkg = "magellantools.script.arcdr2gpkg:main"
