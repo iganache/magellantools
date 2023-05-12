@@ -9,7 +9,7 @@ magellantools can be installed using pip
 
 .. code:: bash
 
-    pip install git+blahblah
+    pip install git+https://github.com/iganache/magellantools
 
 -------------
 
@@ -47,7 +47,7 @@ Add citation here
    :hidden:
    :caption: Command Line Examples
 
-   ex_rdr2csv
+   ex_cliconvert
 
 .. toctree::
    :maxdepth: 1

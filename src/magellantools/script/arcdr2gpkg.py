@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from ARCDR import readARCDR
+from magellantools import ARCDR
 
 
 def cli():
@@ -39,6 +39,11 @@ def cli():
         help="File type",
         choices=["adf", "rdf"],
     )
+    parser.add_argument(
+        "out",
+        type=str,
+        help="Output geopackage name",
+    )
     return parser.parse_args()
 
 
@@ -46,7 +51,9 @@ def arcdr2gpkg(file, ftype):
     fname = file.split("/")[-1].split(".")[0]
     orbitnum = "".join([i for i in fname if i.isdigit()])
 
-    hdr, data = readARCDR(file)
+    hdr, mask, data = ARCDR.readARCDR(file)
+
+    data = data[mask]
 
     df = pd.DataFrame()
 
