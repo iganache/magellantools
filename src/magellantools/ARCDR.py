@@ -20,10 +20,8 @@ def readARCDR(lbl):
     lblname = os.path.basename(file)
 
     if lblname[0:3].lower() == "rdf":
-        # print("parsing rdf")
         return parseRDF(file, hdr)
     if lblname[0:3].lower() == "adf":
-        # print("parsing adf")
         return parseADF(file, hdr)
     else:
         sys.exit("No parser match found")
@@ -62,8 +60,8 @@ def parseADF(file, hdr):
     :param hdr: Length of ADF data file header in bytes
     :type hdr: int
 
-    :return: Tuple with dict containing header information and structured array containing ADF file data
-    :rtype: (dict, np.ndarray)
+    :return: Tuple with dict containing header information, nodata mask, and structured array containing ADF file data
+    :rtype: (dict, np.ndarray, np.ndarray)
     """
     fd = open(file, "rb")
     adfhd = fd.read(hdr - 1)
@@ -167,8 +165,11 @@ def parseADF(file, hdr):
     adf["DERIVED_PLANETARY_THRESH_RADI"] = vax2ieee(
         adf["DERIVED_PLANETARY_THRESH_RADI"]
     )
+    
+    # Mask with the apparent no-data value
+    mask = (adf["ALT_FOOTPRINT_LATITUDE"] != 1.00145924e+18)
 
-    return header, adf
+    return header, mask, adf
 
 
 def parseRDF(file, hdr):
@@ -180,8 +181,8 @@ def parseRDF(file, hdr):
     :param hdr: Length of RDF data file header in bytes
     :type hdr: int
 
-    :return: Tuple with dict containing header information and structured array containing RDF file data
-    :rtype: (dict, np.ndarray)
+    :return: Tuple with dict containing header information, nodata mask, and structured array containing RDF file data
+    :rtype: (dict, np.ndarray, np.ndarray)
     """
     fd = open(file, "rb")
     rdfhd = fd.read(hdr - 1)
@@ -265,7 +266,10 @@ def parseRDF(file, hdr):
     rdf["RAW_RAD_ANTENNA_POWER"] = vax2ieee(rdf["RAW_RAD_ANTENNA_POWER"])
     rdf["RAW_RAD_LOAD_POWER"] = vax2ieee(rdf["RAW_RAD_LOAD_POWER"])
 
-    return header, rdf
+    # Mask with the apparent no-data value
+    mask = (rdf["RAD_FOOTPRINT_LATITUDE"] != 1.00145924e+18)
+
+    return header, mask, rdf
 
 
 def vax2ieee(vax):
