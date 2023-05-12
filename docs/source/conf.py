@@ -29,3 +29,6 @@ html_static_path = ['_static']
 
 # Logo
 html_logo = 'img/logo.png'
+
+# Set top level page
+master_doc = 'index'
