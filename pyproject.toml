@@ -1,0 +1,31 @@
+[build-system]
+requires = [
+    "setuptools>=61.0.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "magellantools"
+version = "0.0.1"
+description = "Tools to parse and manipulate data from the Magellan mission stored on NASA's PDS"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "Indujaa Ganesh", email = "indujaa.ganesh@gmail.com"},
+    {name = "Michael Christoffersen", email = "mchristo28@gmail.com"}
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "geopandas",
+    "tqdm"
+]
+
+[project.urls]
+repository = "https://github.com/iganache/magellantools"
+
+[project.scripts]
+arcdr2csv = "magellantools.script.arcdr2csv:main"
+arcdr2gpkg = "magellantools.script.arcdr2gpkg:main"
