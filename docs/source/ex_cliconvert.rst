@@ -19,4 +19,4 @@ Then use the command line tools to convert them. The command line tools take a d
 
 .. code:: bash
 
-	arcdr2gpkg . adf adf.gpkg
+	arcdr2table csv ./adf01761.lbl

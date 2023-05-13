@@ -1,17 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 14, 2022
-Script for reading in arcdr files and writing 
-all the info into a csv in parallel. 
-
-Command for creating a file with all the lbl
-files needed:
-[find $PWD -type f -name "adf*.lbl" >> filelist]
-[find $PWD -type f -name "rdf*.lbl" >> filelist]
-
-@author: Indujaa, Michael
-"""
-
 import argparse
 import glob
 import os
@@ -29,26 +15,36 @@ def cli():
         description="Generate geopackage from Magellan ARCDR files"
     )
     parser.add_argument(
-        "dir",
+        "out_type",
         type=str,
-        help="Magellan data directory",
+        help="Output file type",
+        choices=["csv", "gpkg"],
     )
     parser.add_argument(
-        "type",
+        "-o",
+        "--output",
         type=str,
-        help="File type",
-        choices=["adf", "rdf"],
+        help="Output file name (default = mgn.[csv,gpkg])",
+        default="mgn"
     )
     parser.add_argument(
-        "out",
+        "-l",
+        "--layer-name",
         type=str,
-        help="Output geopackage name",
+        help="Output layer name, for GPKG only (default = mgn)",
+        default="mgn"
+    )
+    parser.add_argument(
+        "files",
+        type=str,
+        nargs="+",
+        help="File(s)",
     )
     return parser.parse_args()
 
 
-def arcdr2gpkg(file, ftype):
-    fname = file.split("/")[-1].split(".")[0]
+def arcdr2gdf(file):
+    fname = os.path.basename(file)
     orbitnum = "".join([i for i in fname if i.isdigit()])
 
     hdr, mask, data = ARCDR.readARCDR(file)
@@ -58,7 +54,7 @@ def arcdr2gpkg(file, ftype):
     df = pd.DataFrame()
 
     # Split up some multi element fields, name the rest (to toss)
-    if ftype == "adf":
+    if "adf" in fname:
         df["ALT_SPACECRAFT_POSITION_VECTOR_X"] = data["ALT_SPACECRAFT_POSITION_VECTOR"][
             :, 0
         ]
@@ -101,7 +97,7 @@ def arcdr2gpkg(file, ftype):
         lon = data["ALT_FOOTPRINT_LONGITUDE"]
         lat = data["ALT_FOOTPRINT_LATITUDE"]
 
-    elif ftype == "rdf":
+    elif "rdf" in fname:
         df["RAD_SPACECRAFT_POSITION_VECTOR_X"] = data["RAD_SPACECRAFT_POSITION_VECTOR"][
             :, 0
         ]
@@ -147,12 +143,6 @@ def arcdr2gpkg(file, ftype):
         if field not in delFields:
             df[field] = data[field]
 
-    # Filter out bad data (nasty lons)
-    mask = lon <= 360
-    df = df[mask]
-    lon = lon[mask]
-    lat = lat[mask]
-
     # Convert lons from 0-360 to -180 to 180
     lon = (lon + 180) % 360 - 180
 
@@ -163,19 +153,23 @@ def arcdr2gpkg(file, ftype):
     )
 
     # Add in orbit number
-    gdf["ORBIT"] = os.path.basename(file).replace(".lbl", "").replace(ftype, "")
+    gdf["ORBIT"] = orbitnum
 
     return gdf
 
 
 def main():
     args = cli()
-    files = glob.glob(args.dir + "/**/" + args.type + "*.lbl", recursive=True)
     gdfs = []
 
-    print("Reading %s files" % args.type)
-    for file in tqdm(files):
-        gdfs.append(arcdr2gpkg(file, args.type))
+    # Add extension to filename if it is not present
+    out, ext = os.path.splitext(args.output)
+
+    if(ext is not args.out_type):
+        args.output = args.output + "." + args.out_type
+
+    for file in tqdm(args.files):
+        gdfs.append(arcdr2gdf(file))
 
     print("Concatenating GeoDataFrames")
     gdf = pd.concat(gdfs)
@@ -185,9 +179,13 @@ def main():
     )
 
     # Writing geopackage
-    print("Writing geopackage")
-    gdf.to_file("arcdr.gpkg", layer=args.type, driver="GPKG", mode="w")
-
+    if(args.out_type == "gpkg"):
+        gdf.to_file(args.output, layer=args.layer_name, driver=args.out_type.upper(), mode="w")
+    elif(args.out_type == "csv"):
+        df = pd.DataFrame(gdf).drop(columns="geometry")
+        df.to_csv(args.output, index=False)
+    else:
+        print("unhandled output type")
 
 if __name__ == "__main__":
     main()
