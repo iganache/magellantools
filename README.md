@@ -1,7 +1,7 @@
 # Magellan PDS Tools
 [![Documentation Status](https://readthedocs.org/projects/magellantools/badge/?version=latest)](https://magellantools.readthedocs.io/en/latest/?badge=latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![DOI](https://zenodo.org/badge/{430485608}.svg)](https://zenodo.org/badge/latestdoi/{430485608})
+[![DOI](https://zenodo.org/badge/430485608.svg)](https://zenodo.org/doi/10.5281/zenodo.10041646)
 
 <p align="center">
   <img src="docs/source/img/logo.png" />
