@@ -12,6 +12,10 @@ def readARCDR(lbl):
     :return: Tuple with dict containing header information and structured array containing ADF or RDF file data
     :rtype: (dict, np.ndarray)
     """
+    # Enforce that input file is lbl
+    if(lbl.split(".")[-1] != "lbl"):
+        sys.exit("Invalid input file %s\nInput file must be lbl" % lbl)
+
     file, hdr = getFileHdr(lbl)
 
     if hdr == -1:
@@ -24,7 +28,7 @@ def readARCDR(lbl):
     if lblname[0:3].lower() == "adf":
         return parseADF(file, hdr)
     else:
-        sys.exit("No parser match found")
+        sys.exit("No parser match found for file %s" % lbl)
 
 
 def getFileHdr(lbl):

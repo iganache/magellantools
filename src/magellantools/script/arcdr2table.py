@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import textwrap
 
 import geopandas as gpd
 import numpy as np
@@ -9,36 +10,70 @@ from tqdm import tqdm
 
 from magellantools import ARCDR
 
+# Command line utility to convert ADF and RDF files to CSV or GPKG
+
+# TODO: Rewrite file output to a more streaming-type style. No real need to make big
+# geodataframe before writing out I think.
 
 def cli():
+    desc = """
+    arcdr2table translates data from ADF and RDF files in the Magellan ARCDR
+    dataset to comma separated value (CSV) or geopackage (GPKG) format.
+    """
+
+    epi = """
+    Not all fields are currently translated, the output files will be missing
+    the following fields:
+    adf -
+            FORMAL_ERRORS_GROUP
+            FORMAL_CORRELATIONS_GROUP
+            ALT_PARTIALS_GROUP
+            NON_RANGE_SHARP_ECHO_PROF (mean and std dev are output)
+            BEST_NON_RANGE_SHARP_MODEL_TPT
+            RANGE_SHARP_ECHO_PROFILE
+            BEST_RANGE_SHARP_MODEL_TMPLT
+    rdf -
+            RAD_PARTIALS_GROUP
+            RAW_RAD_LOAD_POWER
+            ALT_SKIP_FACTOR
+            ALT_GAIN_FACTOR
+
+    ARCDR landing page:
+    https://pds-geosciences.wustl.edu/missions/magellan/arcdr/index.htm
+    """
     parser = argparse.ArgumentParser(
-        description="Generate geopackage from Magellan ARCDR files"
+        description=textwrap.dedent(desc),
+        epilog=textwrap.dedent(epi),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument("-v", help="Verbose output", action="store_true")
     parser.add_argument(
-        "out_type",
+        "-t",
+        "--type",
         type=str,
         help="Output file type",
         choices=["csv", "gpkg"],
+        default="csv"
     )
     parser.add_argument(
         "-o",
         "--output",
         type=str,
         help="Output file name (default = mgn.[csv,gpkg])",
-        default="mgn"
+        default="mgn",
     )
     parser.add_argument(
         "-l",
         "--layer-name",
         type=str,
         help="Output layer name, for GPKG only (default = mgn)",
-        default="mgn"
+        default="mgn",
     )
     parser.add_argument(
         "files",
         type=str,
         nargs="+",
-        help="File(s)",
+        help="Label file(s) of ADF/RDF file(s) to convert. Must be in same directory as ADF/RDF file.",
     )
     return parser.parse_args()
 
@@ -164,14 +199,17 @@ def main():
 
     # Add extension to filename if it is not present
     out, ext = os.path.splitext(args.output)
+    ext = ext[1:]  # strip .
 
-    if(ext is not args.out_type):
-        args.output = args.output + "." + args.out_type
+    if ext != args.type:
+        args.output = args.output + "." + args.type
 
-    for file in tqdm(args.files):
+    for file in tqdm(args.files, desc="Loading data files", disable=(not args.v)):
         gdfs.append(arcdr2gdf(file))
 
-    print("Concatenating GeoDataFrames")
+    if(args.v):
+        print("Concatenating GeoDataFrames.")
+
     gdf = pd.concat(gdfs)
 
     gdf.set_crs(
@@ -179,13 +217,20 @@ def main():
     )
 
     # Writing geopackage
-    if(args.out_type == "gpkg"):
-        gdf.to_file(args.output, layer=args.layer_name, driver=args.out_type.upper(), mode="w")
-    elif(args.out_type == "csv"):
+    if args.type == "gpkg":
+        if(args.v):
+            print("Writing gpkg.")
+        gdf.to_file(
+            args.output, layer=args.layer_name, driver=args.type.upper(), mode="w"
+        )
+    elif args.type == "csv":
+        if(args.v):
+            print("Writing csv.")
         df = pd.DataFrame(gdf).drop(columns="geometry")
         df.to_csv(args.output, index=False)
     else:
         print("unhandled output type")
+
 
 if __name__ == "__main__":
     main()
